@@ -1,0 +1,40 @@
+# contenedor apache
+services:
+  web:
+    container_name: asir_apache
+    image: httpd:latest
+    ports:
+      - "100:100"
+    networks:  
+      red_apache: 
+        ipv4_address: 10.1.0.50
+      #mapeo carpetas
+    volumes:
+      - ./paginas:/usr/local/apache2/htdocs
+      - ./conf_apache:/usr/local/apache2/conf
+    
+
+ # bind 
+  asir_bind9:  
+    container_name: asir_bind9_apache    #nombre del contenedor  
+    image: ubuntu/bind9     #plataforma de la imagen  
+    platform: linux/amd64  
+    ports:  #mapeamos los puertos 53 tanto tcp como udp  
+      - 53:53  
+    networks:  
+      red_apache: 
+        ipv4_address: 10.1.0.2  
+    dns: 10.1.0.2        
+       
+    volumes:  
+      - ./conf_bind:/etc/bind   #Aquí mapeamos los archivos de configuración de bind  
+      - ./zonas:/var/lib/bind   #Aqui mapeamos el directorio de zonas 
+    
+
+networks:  
+  red_apache:  
+    ipam: 
+      driver: default
+      config:
+        - subnet:  10.1.0.0/16
+          gateway: 10.1.0.1 
